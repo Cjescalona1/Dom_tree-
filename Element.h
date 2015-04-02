@@ -16,8 +16,8 @@ class Element
 		///constructores
 		Element():Tag(""), Inner(""), Listattr(){};
 		Element(string tag): Tag(tag), Inner(""), Listattr(){};
-		Element(string tag, const list<string> &l1): Tag(tag), Listattr(l1){/**cout<<endl<<"const string and list "<<endl;*/} 
-	  Element(string tag, string inner): Tag(tag), Inner(inner), Listattr(){/**cout<<"const doble string"<<endl;*/}
+		Element(string tag, const list<string> &l1): Tag(tag), Listattr(l1){} 
+	  	Element(string tag, string inner): Tag(tag), Inner(inner), Listattr(){}
 		Element(string tag, string inner, const list<string> &l1): Tag(tag), Inner(inner), Listattr(l1){};
 
 		///consultores
