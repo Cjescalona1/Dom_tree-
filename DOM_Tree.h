@@ -29,6 +29,10 @@ class DOM_Tree
 		DOM_Tree getElementByID(string ID)const;
 		///modificadores
 		void copiar(const DOM_Tree &aDT);
+		void removeChild(int p);
+		void appendChild(int p, const DOM_Tree &nvo);
+		void appendChild(const DOM_Tree &nvo);
+		void replaceChild(int p, const DOM_Tree &nvo);
 		
 		///sobreCargas
 		void operator=(const DOM_Tree &a2){this->copiar(a2);}
@@ -151,3 +155,147 @@ class DOM_Tree
 		else
 			nodeRaiz=NULL;
 	}
+	
+	
+	
+	void DOM_Tree:: removeChild(int p)
+	{
+		int i=1;
+		Node *aux;
+		DOM_Tree ab;
+
+		if(p>0 && nodeRaiz!=NULL && nodeRaiz->firstChild()!= NULL)
+		{
+			if (p==1)
+			{
+				ab.nodeRaiz=nodeRaiz->firstChild();
+				nodeRaiz->setFirstChild(nodeRaiz->firstChild()->nextSibling());
+				ab.nodeRaiz->setNextSibling(NULL);
+				ab.vaciarDT();
+			}
+			else
+			{
+				aux=nodeRaiz->firstChild();
+				while (aux!=NULL && i<p-1)
+				{
+					aux=aux->nextSibling();
+					i++;
+				}
+				if (aux!=NULL && aux->nextSibling()!=NULL)
+				{
+					ab.nodeRaiz= aux->nextSibling();
+					aux->setNextSibling(ab.nodeRaiz->nextSibling());
+					ab.nodeRaiz->setNextSibling(NULL);
+					ab.vaciarDT();
+				}
+			}
+			
+			ab.nodeRaiz=NULL;
+		}
+	}
+	void DOM_Tree:: appendChild(int p, const DOM_Tree &nvo)
+	{
+		int i=1;
+		Node *aux;
+		DOM_Tree ab;
+
+		if(p>0 && nodeRaiz!=NULL && nvo.nodeRaiz!=NULL)
+		{
+			ab.copiar(nvo);
+			if(nodeRaiz->firstChild()==NULL && p==1)
+				nodeRaiz->setFirstChild(ab.nodeRaiz);
+			else if(nodeRaiz->firstChild()!=NULL)
+			{
+				if(p==1)
+				{
+					ab.nodeRaiz->setNextSibling(nodeRaiz->firstChild());
+					nodeRaiz->setFirstChild(ab.nodeRaiz);
+				}
+				else
+				{
+					aux=nodeRaiz->firstChild();
+					while (aux!=NULL && i<p-1)
+					{
+						aux=aux->nextSibling();
+						i++;
+					}
+					if(aux!=NULL)
+					{
+						ab.nodeRaiz->setNextSibling(aux->nextSibling());
+						aux->setNextSibling(ab.nodeRaiz);
+					}
+				}
+			}
+			ab.nodeRaiz=NULL;
+		}
+	}
+
+
+
+	void DOM_Tree:: appendChild(const DOM_Tree &nvo)
+	{
+		Node *aux;
+		DOM_Tree ab;
+
+		if(nodeRaiz!=NULL)
+		{
+			ab.copiar(nvo);
+			if(nodeRaiz->firstChild()==NULL)
+				nodeRaiz->setFirstChild(ab.nodeRaiz);
+			else
+			{
+				aux=nodeRaiz->firstChild();
+				while (aux->nextSibling()!=NULL)
+					aux=aux->nextSibling();
+				aux->setNextSibling(ab.nodeRaiz);
+			}
+			ab.nodeRaiz=NULL;
+		}
+	}
+	
+	
+	
+	void DOM_Tree:: replaceChild(int p, const DOM_Tree &nvo)
+	{
+		int i=1;
+		Node *aux, *rpc;
+		DOM_Tree ab;
+
+		if(p>0 && nodeRaiz!=NULL && nvo.nodeRaiz!=NULL && nodeRaiz->firstChild()!=NULL)
+		{
+			if (p==1)
+			{
+				rpc=nodeRaiz->firstChild();
+				ab.copiar(nvo);
+				ab.nodeRaiz->setNextSibling(rpc->nextSibling());
+				nodeRaiz->setFirstChild(ab.nodeRaiz);
+				ab.nodeRaiz=rpc;
+				ab.nodeRaiz->setNextSibling(NULL);
+				ab.vaciarDT();
+			}
+			else
+			{
+				aux=nodeRaiz->firstChild();
+				while (aux!=NULL && i<p-1)
+				{
+					aux=aux->nextSibling();
+					i++;
+				}
+				if(aux!=NULL)
+				{
+					rpc=aux->nextSibling();
+					if (rpc!=NULL)
+					{
+						ab.copiar(nvo);
+						ab.nodeRaiz->setNextSibling(rpc->nextSibling());
+						aux->setNextSibling(ab.nodeRaiz);
+						ab.nodeRaiz=rpc;
+						ab.nodeRaiz->setNextSibling(NULL);
+						ab.vaciarDT();
+					}
+				}
+			}
+			ab.nodeRaiz= NULL;
+		}
+	}
+	
