@@ -13,6 +13,7 @@ class DOM_Tree
 {
 	private:
 		Node *nodeRaiz;
+		int ident;
 		
 		///estaticos
 		static Node* copiarNode(Node *ptr);
@@ -20,8 +21,8 @@ class DOM_Tree
 					
 	public:
 		///constructores
-		DOM_Tree(): nodeRaiz(NULL){}
-		DOM_Tree(const Element &e1){nodeRaiz= new Node(e1);}
+		DOM_Tree(): nodeRaiz(NULL), ident(0){}
+		DOM_Tree(const Element &e1){nodeRaiz= new Node(e1); ident(0)}
 		DOM_Tree(const Element &raiz, list<DOM_Tree> &l1);
 		DOM_Tree (const DOM_Tree &dt){this->copiar(dt);}
 		///consultores
@@ -38,13 +39,13 @@ class DOM_Tree
 		void replaceChild(int p, const DOM_Tree &nvo);
 		void replaceChild(int p, string cadena);
 		void buildString(string &cadena);
-		
 		///sobreCargas
 		void operator=(const DOM_Tree &a2){this->copiar(a2);}
 		friend istream& operator>> (istream& is, DOM_Tree &ax);
-
-		
+		friend ostream& operator<< (ostream& os, const DOM_Tree &ax);
 		///Destructores
+		void vaciarDT();
+		~DOM_Tree();
 	
 };		
 	///constructores
@@ -52,7 +53,8 @@ class DOM_Tree
 	{
 		Node *aux;
 		DOM_Tree arbAux;
-
+		
+		ident=0;
 		nodeRaiz= new Node (raiz, NULL, NULL) ;
 		if (!lst.empty())
 		{
@@ -506,7 +508,111 @@ class DOM_Tree
 		}
 		return is;
 	}
+	
+	ostream& operator<< (ostream& os, const DOM_Tree &ax)
+	{
+		list<string>::iterator it;
+		list<string> l;
+		Node *ptr;
+		DOM_Tree aux;
 		
+		if(ax.nodeRaiz!=NULL)
+		{
+			ptr= ax.nodeRaiz;
+			if ((ptr->element().tagName()=="!doctype html") || (ptr->element().tagName()=="!DOCTYPE html"))
+			{
+				os<<"<"<<ptr->element().tagName()<<">";
+				aux.nodeRaiz=ptr->firstChild();
+				os<<endl<<aux;
+			}			
+			else
+			{
+				for (int i = 0; i < ax.ident; i++)
+					os<<"\t";
+				
+				os<<"<"<<ptr->element().tagName();
+				///de aqui
+				l=ptr->element().attributeList();
+				if(!l.empty())
+				{
+					for(it= l.begin(); it!= l.end();++it)
+						os<<" "<<*it;
+				}
+				///hasta aqui
+				os<<">";
+				if(ptr->element().innerHTML()!="")
+					os<<ptr->element().innerHTML();
+
+				if(ptr->firstChild()==NULL)
+					os<<"</"<<ptr->element().tagName()<<">";
+				else
+				{
+					aux.nodeRaiz=ptr->firstChild();
+					aux.ident=ax.ident+1;
+					os<<endl<<aux;
+					for (int i = 0; i < ax.ident; i++)
+						os<<"\t";
+					os<<"</"<<ptr->element().tagName()<<">";
+				}
+				aux.ident=ax.ident;
+				aux.nodeRaiz=ptr->nextSibling();
+				os<<endl<<aux;
+			}
+		}
+		ptr=NULL;
+		aux.nodeRaiz=NULL;
+		return os;
+	}
+
+
+	///Destructor
+	void DOM_Tree:: vaciarDT()
+	{
+		list<Node* > l;
+		Node *aux;
+
+		if (nodeRaiz!=NULL)
+		{
+			l.push_back(nodeRaiz);
+			while (!(l.empty()))
+			{
+				aux= l.back();
+				l.pop_back();
+				if (aux->firstChild()!=NULL)
+					l.push_back(aux->firstChild());
+				if (aux->nextSibling()!=NULL)
+					l.push_back(aux->nextSibling());
+				delete (aux);
+				
+			}
+			nodeRaiz= NULL;
+		}
+	}
+
+	DOM_Tree:: ~DOM_Tree()
+	{
+		list<Node* > l;
+		Node *aux;
+
+		if (nodeRaiz!=NULL)
+		{
+			l.push_back(nodeRaiz);
+			while (!(l.empty()))
+			{
+				aux= l.back();
+				l.pop_back();
+				if (aux->firstChild()!=NULL)
+					l.push_back(aux->firstChild());
+				if (aux->nextSibling()!=NULL)
+					l.push_back(aux->nextSibling());
+				delete (aux);
+				
+			}
+			nodeRaiz= NULL;
+		}
+	}
+
+	
 		
 		
 #endif
